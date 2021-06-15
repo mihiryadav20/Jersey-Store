@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% include 'breadcrumbs.html' %}
+
+<div class="row">
+	{% for images in pid %}
+	<div class="col-xs-12 col-sm-3">
+			<div class="thumbnail">
+				<img src="/media/{{ images.image }}" alt="{{ product.title }}"/>
+			</div>
+	</div>
+	{% endfor %}
+		<div class="caption text-center">
+			<form method="POST" action='{% url "my_cart" %}'>
+				{% csrf_token %}
+				<input type="hidden" name="product" value={{product.slug}} />
+
+			 	{% if product.productvariation_set.all %}
+
+				 	{% if product.productvariation_set.sizes %}
+				 	<select class='form-control' name='size'>
+				 	{% for item in product.productvariation_set.sizes %}
+				 		<option value='{{ item.id }}'>{{ item.title }}</option>
+				 		{% endfor %}
+				 	</select>
+				 	{% endif %}
+
+				 	 {% if product.productvariation_set.colors %}
+				 	<select class='form-control' name='color'>
+				 	{% for item in product.productvariation_set.colors %}
+				 		<option value='{{ item.id }}'>{{ item.title }}</option>
+				 		{% endfor %}
+				 	</select>
+				 	{% endif %}
+
+			 	{% endif %}
+
+				<input type="number" min="1" max="9" value="1" name="quantity" class="form-control">
+				<br>
+				<button id="cart" type="submit" class="btn btn-success">Add to Cart</button><br><br>
+				<span id="login" style="display: none;">You must first <a href="{% url 'user_login' %}">Log in</a></span>
+			</form>
+		</div>		
+	</div>
+	<div class="col-xs-12 col-sm-9">
+		<h3>{{ product.title }}</h3>
+		<p><span><b>&#8377;</b>  {{ product.price }}</span></p>
+		<p>{{ product.description }}</p>
+	</div>
+</div>
+
+<!--   Modal -->
+<div id="donm" class="t">
+
+	<div class="t-content">
+		<span id="donclose" class="closer" style="color:black">&times;</span>
+	  <div class="t-body">
+		<div class="row">
+			<div class="col-xs-6 col-xs-offset-3">
+			  <form class="form-signin" method="POST" action="">
+			  {% csrf_token %}
+				<h2 class="form-signin-heading">please sign in</h2>
+				{{ form.as_p }}
+				<button class="btn btn-lg btn-primary btn-block" type="submit">log in</button>
+			  </form>
+			  <div class="page-header"></div>
+			  <p class="text-center">Don’t have an account?<a href="{% url 'user_register' %}"> Register an account here</a>.</p>
+		</div>
+		</div>
+	  </div>
+	</div>
+  </div>
+
+{% if user.is_authenticated %}
+{% else %}
+<script>
+// document.getElementById("cart").addEventListener("click", function(e){
+//   e.preventDefault();
+//   document.getElementById('login').style.removeProperty("display");
+// });
+var donm = document.getElementById("donm");
+var cls = document.getElementById("donclose");
+var recm = document.getElementById("cart");
+recm.onclick = function(e) {
+	e.preventDefault();	
+    donm.style.display = "block";
+}
+
+cls.onclick = function() {
+  donm.style.display = "none";
+}
+
+window.addEventListener("click", function(event) {
+  if (event.target == donm) {
+    donm.style.display = "none";
+  }
+});
+
+</script>
+{% endif %}
+
+
+{% endblock %}
+
